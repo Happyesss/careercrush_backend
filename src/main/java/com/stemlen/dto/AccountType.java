@@ -1,5 +1,5 @@
 package com.stemlen.dto;
 
 public enum AccountType {
- APPLICANT,COMPANY
+ APPLICANT,COMPANY,MENTOR
 }

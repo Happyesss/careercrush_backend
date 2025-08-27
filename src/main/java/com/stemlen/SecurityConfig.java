@@ -48,6 +48,7 @@ public class SecurityConfig {
                     "/oauth2/**" 
                 ).permitAll()
                 .requestMatchers("/jobs/getAll", "/hackathons/getAll","/jobs/get/{id}","/hackathons/get/{id}").permitAll() // Public access
+                .requestMatchers("/mentors/available", "/mentors/getAll").permitAll() // Public mentor endpoints
                 .requestMatchers("/admin/**").permitAll() // Admin endpoints for database management
                 .anyRequest().authenticated()
             )
