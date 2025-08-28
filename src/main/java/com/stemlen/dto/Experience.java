@@ -16,4 +16,5 @@ public class Experience {
     private LocalDateTime endDate;
     private Boolean working;
     private String description;
+    private String companyLogo; // Base64 encoded company logo image
 }

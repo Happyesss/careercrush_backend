@@ -33,16 +33,43 @@ public class MentorshipPackage {
     private Boolean isFreeTrialIncluded; // Whether free trial is included
     private String sessionType; // Video call, chat, email, etc.
     private Integer sessionDurationMinutes; // Duration of each session
+    
+    // Package Inclusions (as per Preplaced documentation)
+    private Boolean hasUnlimitedChat; // Unlimited chat with mentor
+    private Boolean hasCuratedTasks; // Task & Curated Resources
+    private Boolean hasRegularFollowups; // Regular follow-ups (accountability)
+    private Boolean hasJobReferrals; // Job referrals from mentor community
+    private Boolean hasCertification; // Certification of mentorship completion
+    private Boolean hasRescheduling; // Reschedule anytime capability
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
     public MentorshipPackageDTO toDTO() {
-        return new MentorshipPackageDTO(
-            this.id, this.mentorId, this.packageName, this.description,
-            this.durationMonths, this.totalSessions, this.sessionsPerMonth,
-            this.pricePerMonth, this.totalPrice, this.topicsCovered, this.modules,
-            this.isActive, this.isFreeTrialIncluded, this.sessionType,
-            this.sessionDurationMinutes, this.createdAt, this.updatedAt
-        );
+        MentorshipPackageDTO dto = new MentorshipPackageDTO();
+        dto.setId(this.id);
+        dto.setMentorId(this.mentorId);
+        dto.setPackageName(this.packageName);
+        dto.setDescription(this.description);
+        dto.setDurationMonths(this.durationMonths);
+        dto.setTotalSessions(this.totalSessions);
+        dto.setSessionsPerMonth(this.sessionsPerMonth);
+        dto.setPricePerMonth(this.pricePerMonth);
+        dto.setTotalPrice(this.totalPrice);
+        dto.setTopicsCovered(this.topicsCovered);
+        dto.setModules(this.modules);
+        dto.setIsActive(this.isActive);
+        dto.setIsFreeTrialIncluded(this.isFreeTrialIncluded);
+        dto.setSessionType(this.sessionType);
+        dto.setSessionDurationMinutes(this.sessionDurationMinutes);
+        dto.setHasUnlimitedChat(this.hasUnlimitedChat);
+        dto.setHasCuratedTasks(this.hasCuratedTasks);
+        dto.setHasRegularFollowups(this.hasRegularFollowups);
+        dto.setHasJobReferrals(this.hasJobReferrals);
+        dto.setHasCertification(this.hasCertification);
+        dto.setHasRescheduling(this.hasRescheduling);
+        dto.setCreatedAt(this.createdAt);
+        dto.setUpdatedAt(this.updatedAt);
+        return dto;
     }
 }

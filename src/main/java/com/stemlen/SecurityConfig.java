@@ -49,6 +49,14 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers("/jobs/getAll", "/hackathons/getAll","/jobs/get/{id}","/hackathons/get/{id}").permitAll() // Public access
                 .requestMatchers("/mentors/available", "/mentors/getAll").permitAll() // Public mentor endpoints
+                .requestMatchers(
+                    "/packages/active", 
+                    "/packages/mentor/*/active",
+                    "/trial-sessions/mentor/*/available",
+                    "/subscriptions/quote",
+                    "/payments/create-order",
+                    "/payments/webhook/paid"
+                ).permitAll()
                 .requestMatchers("/admin/**").permitAll() // Admin endpoints for database management
                 .anyRequest().authenticated()
             )

@@ -38,6 +38,26 @@ public class MentorshipPackageServiceImpl implements MentorshipPackageService {
             packageDTO.setSessionDurationMinutes(60); // Default 1 hour sessions
         }
         
+        // Set default package inclusions (as per Preplaced documentation)
+        if (packageDTO.getHasUnlimitedChat() == null) {
+            packageDTO.setHasUnlimitedChat(true);
+        }
+        if (packageDTO.getHasCuratedTasks() == null) {
+            packageDTO.setHasCuratedTasks(true);
+        }
+        if (packageDTO.getHasRegularFollowups() == null) {
+            packageDTO.setHasRegularFollowups(true);
+        }
+        if (packageDTO.getHasJobReferrals() == null) {
+            packageDTO.setHasJobReferrals(true);
+        }
+        if (packageDTO.getHasCertification() == null) {
+            packageDTO.setHasCertification(true);
+        }
+        if (packageDTO.getHasRescheduling() == null) {
+            packageDTO.setHasRescheduling(true);
+        }
+        
         MentorshipPackage savedPackage = packageRepository.save(packageDTO.toEntity());
         return savedPackage.toDTO();
     }

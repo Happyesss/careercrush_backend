@@ -88,20 +88,6 @@ public class MentorAPI {
         return new ResponseEntity<>(mentorService.getMentorsByLocation(location), HttpStatus.OK);
     }
     
-    // Get mentors with capacity
-    @GetMapping("/withCapacity")
-    public ResponseEntity<List<MentorDTO>> getMentorsWithCapacity() {
-        return new ResponseEntity<>(mentorService.getMentorsWithCapacity(), HttpStatus.OK);
-    }
-    
-    // Get mentors by rate range
-    @GetMapping("/rateRange")
-    public ResponseEntity<List<MentorDTO>> getMentorsByRateRange(
-            @RequestParam Double minRate, 
-            @RequestParam Double maxRate) {
-        return new ResponseEntity<>(mentorService.getMentorsByRateRange(minRate, maxRate), HttpStatus.OK);
-    }
-    
     // Update mentor availability
     @PutMapping("/availability/{id}")
     public ResponseEntity<MentorDTO> updateMentorAvailability(

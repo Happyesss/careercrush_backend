@@ -41,12 +41,6 @@ public interface MentorService {
     // Get mentors by location
     public List<MentorDTO> getMentorsByLocation(String location);
     
-    // Get mentors with capacity (available and currentMentees < maxMentees)
-    public List<MentorDTO> getMentorsWithCapacity();
-    
-    // Get mentors by hourly rate range
-    public List<MentorDTO> getMentorsByRateRange(Double minRate, Double maxRate);
-    
     // Update mentor availability
     public MentorDTO updateMentorAvailability(Long id, Boolean isAvailable) throws PortalException;
     

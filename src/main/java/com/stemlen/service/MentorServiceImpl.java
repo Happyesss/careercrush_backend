@@ -76,13 +76,6 @@ public class MentorServiceImpl implements MentorService {
     }
     
     @Override
-    public List<MentorDTO> getAvailableMentors() {
-        return mentorRepository.findByIsAvailable(true).stream()
-                .map(Mentor::toDTO)
-                .toList();
-    }
-    
-    @Override
     public List<MentorDTO> getMentorsByStatus(MentorshipStatus status) {
         return mentorRepository.findByMentorshipStatus(status).stream()
                 .map(Mentor::toDTO)
@@ -111,15 +104,8 @@ public class MentorServiceImpl implements MentorService {
     }
     
     @Override
-    public List<MentorDTO> getMentorsWithCapacity() {
-        return mentorRepository.findAvailableMentorsWithCapacity().stream()
-                .map(Mentor::toDTO)
-                .toList();
-    }
-    
-    @Override
-    public List<MentorDTO> getMentorsByRateRange(Double minRate, Double maxRate) {
-        return mentorRepository.findByHourlyRateBetween(minRate, maxRate).stream()
+    public List<MentorDTO> getAvailableMentors() {
+        return mentorRepository.findAvailableMentors().stream()
                 .map(Mentor::toDTO)
                 .toList();
     }
@@ -149,17 +135,7 @@ public class MentorServiceImpl implements MentorService {
         Mentor mentor = mentorRepository.findById(mentorId)
                 .orElseThrow(() -> new PortalException("MENTOR_NOT_FOUND"));
         
-        if (mentor.getCurrentMentees() >= mentor.getMaxMentees()) {
-            throw new PortalException("MENTOR_AT_CAPACITY");
-        }
-        
         mentor.setCurrentMentees(mentor.getCurrentMentees() + 1);
-        
-        // Update availability status if at capacity
-        if (mentor.getCurrentMentees().equals(mentor.getMaxMentees())) {
-            mentor.setMentorshipStatus(MentorshipStatus.BUSY);
-            mentor.setIsAvailable(false);
-        }
         
         mentor = mentorRepository.save(mentor);
         return mentor.toDTO();
@@ -175,14 +151,6 @@ public class MentorServiceImpl implements MentorService {
         }
         
         mentor.setCurrentMentees(mentor.getCurrentMentees() - 1);
-        
-        // Update availability status if below capacity
-        if (mentor.getCurrentMentees() < mentor.getMaxMentees()) {
-            if (mentor.getMentorshipStatus() == MentorshipStatus.BUSY) {
-                mentor.setMentorshipStatus(MentorshipStatus.ACTIVE);
-                mentor.setIsAvailable(true);
-            }
-        }
         
         mentor = mentorRepository.save(mentor);
         return mentor.toDTO();

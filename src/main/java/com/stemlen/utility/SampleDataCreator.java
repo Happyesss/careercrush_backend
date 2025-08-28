@@ -52,6 +52,14 @@ public class SampleDataCreator implements CommandLineRunner {
         sixMonthPackage.setSessionType("Video Call");
         sixMonthPackage.setSessionDurationMinutes(60);
         
+        // Set package inclusions (as per Preplaced documentation)
+        sixMonthPackage.setHasUnlimitedChat(true);
+        sixMonthPackage.setHasCuratedTasks(true);
+        sixMonthPackage.setHasRegularFollowups(true);
+        sixMonthPackage.setHasJobReferrals(true);
+        sixMonthPackage.setHasCertification(true);
+        sixMonthPackage.setHasRescheduling(true);
+        
         // Create modules for 6 months
         List<PackageModule> modules = new ArrayList<>();
         for (int i = 1; i <= 6; i++) {
@@ -85,6 +93,14 @@ public class SampleDataCreator implements CommandLineRunner {
         threeMonthPackage.setSessionType("Video Call");
         threeMonthPackage.setSessionDurationMinutes(60);
         
+        // Set package inclusions (as per Preplaced documentation)
+        threeMonthPackage.setHasUnlimitedChat(true);
+        threeMonthPackage.setHasCuratedTasks(true);
+        threeMonthPackage.setHasRegularFollowups(true);
+        threeMonthPackage.setHasJobReferrals(true);
+        threeMonthPackage.setHasCertification(true);
+        threeMonthPackage.setHasRescheduling(true);
+        
         // Create modules for 3 months
         List<PackageModule> threeMonthModules = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
@@ -117,6 +133,14 @@ public class SampleDataCreator implements CommandLineRunner {
         oneMonthPackage.setIsFreeTrialIncluded(true);
         oneMonthPackage.setSessionType("Video Call");
         oneMonthPackage.setSessionDurationMinutes(60);
+        
+        // Set package inclusions (as per Preplaced documentation)
+        oneMonthPackage.setHasUnlimitedChat(true);
+        oneMonthPackage.setHasCuratedTasks(true);
+        oneMonthPackage.setHasRegularFollowups(true);
+        oneMonthPackage.setHasJobReferrals(true);
+        oneMonthPackage.setHasCertification(true);
+        oneMonthPackage.setHasRescheduling(true);
         
         // Create module for 1 month
         List<PackageModule> oneMonthModules = new ArrayList<>();

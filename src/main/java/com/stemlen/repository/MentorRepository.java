@@ -31,10 +31,7 @@ public interface MentorRepository extends MongoRepository<Mentor, Long> {
     // Find mentor by email
     Optional<Mentor> findByEmail(String email);
     
-    // Find mentors with availability and current mentees less than max
-    @Query("{'isAvailable': true, '$expr': {'$lt': ['$currentMentees', '$maxMentees']}}")
-    List<Mentor> findAvailableMentorsWithCapacity();
-    
-    // Find mentors by hourly rate range
-    List<Mentor> findByHourlyRateBetween(Double minRate, Double maxRate);
+    // Find mentors with availability
+    @Query("{'isAvailable': true}")
+    List<Mentor> findAvailableMentors();
 }

@@ -14,4 +14,5 @@ public class Certification {
 	private String issuer;
 	private LocalDateTime issueDate;
 	private String certificateID;
+	private String certificateImage; // Base64 encoded image
 }

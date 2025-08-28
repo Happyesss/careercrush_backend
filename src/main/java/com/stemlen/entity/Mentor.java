@@ -38,11 +38,9 @@ public class Mentor {
     
     // Mentor-specific fields
     private String expertise; // Areas of expertise
-    private Double hourlyRate; // Hourly rate for mentorship
     private String bio; // Detailed bio for mentorship
     private List<String> mentorshipAreas; // Specific areas they provide mentorship in
     private Boolean isAvailable; // Current availability status
-    private Integer maxMentees; // Maximum number of mentees they can handle
     private Integer currentMentees; // Current number of active mentees
     private MentorshipStatus mentorshipStatus; // ACTIVE, INACTIVE, BUSY
     private LocalDateTime joinDate; // When they joined as a mentor
@@ -60,8 +58,8 @@ public class Mentor {
             this.picture != null ? Base64.getEncoder().encodeToString(this.picture) : null,
             this.profileBackground != null ? Base64.getEncoder().encodeToString(this.profileBackground) : null,
             this.totalExp, this.skills, this.experiences, this.certifications,
-            this.expertise, this.hourlyRate, this.bio, this.mentorshipAreas, this.isAvailable,
-            this.maxMentees, this.currentMentees, this.mentorshipStatus, this.joinDate,
+            this.expertise, this.bio, this.mentorshipAreas, this.isAvailable,
+            this.currentMentees, this.mentorshipStatus, this.joinDate,
             this.linkedinUrl, this.portfolioUrl, this.languages, this.timezone,
             this.availableDays, this.sessionPreference,
             this.mentorshipRequests != null ? this.mentorshipRequests.stream().map(MentorshipRequest::toDTO).toList() : null

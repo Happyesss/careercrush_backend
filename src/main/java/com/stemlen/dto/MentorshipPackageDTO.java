@@ -29,6 +29,15 @@ public class MentorshipPackageDTO {
     private Boolean isFreeTrialIncluded;
     private String sessionType;
     private Integer sessionDurationMinutes;
+    
+    // Package Inclusions (as per Preplaced documentation)
+    private Boolean hasUnlimitedChat; // Unlimited chat with mentor
+    private Boolean hasCuratedTasks; // Task & Curated Resources
+    private Boolean hasRegularFollowups; // Regular follow-ups (accountability)
+    private Boolean hasJobReferrals; // Job referrals from mentor community
+    private Boolean hasCertification; // Certification of mentorship completion
+    private Boolean hasRescheduling; // Reschedule anytime capability
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -49,6 +58,12 @@ public class MentorshipPackageDTO {
         entity.setIsFreeTrialIncluded(this.isFreeTrialIncluded);
         entity.setSessionType(this.sessionType);
         entity.setSessionDurationMinutes(this.sessionDurationMinutes);
+        entity.setHasUnlimitedChat(this.hasUnlimitedChat);
+        entity.setHasCuratedTasks(this.hasCuratedTasks);
+        entity.setHasRegularFollowups(this.hasRegularFollowups);
+        entity.setHasJobReferrals(this.hasJobReferrals);
+        entity.setHasCertification(this.hasCertification);
+        entity.setHasRescheduling(this.hasRescheduling);
         entity.setCreatedAt(this.createdAt);
         entity.setUpdatedAt(this.updatedAt);
         return entity;
