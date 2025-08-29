@@ -122,4 +122,17 @@ public class TrialSessionAPI {
         trialSessionService.deleteTrialSession(id);
         return new ResponseEntity<>(new ResponseDTO("Trial session deleted successfully"), HttpStatus.OK);
     }
+    
+    // Get orphaned trial sessions (sessions with invalid mentorId)
+    @GetMapping("/orphaned")
+    public ResponseEntity<List<TrialSessionDTO>> getOrphanedTrialSessions() throws PortalException {
+        return new ResponseEntity<>(trialSessionService.findOrphanedTrialSessions(), HttpStatus.OK);
+    }
+    
+    // Cleanup orphaned trial sessions
+    @DeleteMapping("/cleanup-orphaned")
+    public ResponseEntity<ResponseDTO> cleanupOrphanedTrialSessions() throws PortalException {
+        trialSessionService.cleanupOrphanedTrialSessions();
+        return new ResponseEntity<>(new ResponseDTO("Orphaned trial sessions cleaned up successfully"), HttpStatus.OK);
+    }
 }

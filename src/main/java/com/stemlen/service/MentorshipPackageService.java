@@ -42,4 +42,10 @@ public interface MentorshipPackageService {
     
     // Get packages by session type
     List<MentorshipPackageDTO> getPackagesBySessionType(String sessionType);
+    
+    // Validate and cleanup orphaned packages (packages with invalid mentorId)
+    List<MentorshipPackageDTO> findOrphanedPackages() throws PortalException;
+    
+    // Delete orphaned packages (packages with invalid mentorId)
+    void cleanupOrphanedPackages() throws PortalException;
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.stemlen.dto.MentorshipPackageDTO;
 import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.entity.PackageModule;
+import com.stemlen.repository.MentorRepository;
 import com.stemlen.service.MentorshipPackageService;
 import com.stemlen.service.TrialSessionService;
 
@@ -19,6 +20,7 @@ import com.stemlen.service.TrialSessionService;
  * Sample data creator for testing the mentorship packages system
  * This component creates sample packages and trial sessions when the application starts
  * Comment out @Component annotation in production
+ * IMPORTANT: Only creates data if valid mentors exist
  */
 // @Component
 public class SampleDataCreator implements CommandLineRunner {
@@ -29,16 +31,32 @@ public class SampleDataCreator implements CommandLineRunner {
     @Autowired
     private TrialSessionService trialSessionService;
     
+    @Autowired
+    private MentorRepository mentorRepository;
+    
     @Override
     public void run(String... args) throws Exception {
-        createSamplePackages();
-        createSampleTrialSessions();
+        // Only create sample data if mentors exist
+        if (mentorRepository.count() > 0) {
+            // Get the first available mentor ID
+            Long firstMentorId = mentorRepository.findAll().get(0).getId();
+            createSamplePackages(firstMentorId);
+            createSampleTrialSessions(firstMentorId);
+        } else {
+            System.out.println("⚠️  No mentors found - skipping sample data creation. Please create mentors first.");
+        }
     }
     
-    private void createSamplePackages() throws Exception {
+    private void createSamplePackages(Long mentorId) throws Exception {
+        // Validate mentor exists before creating any packages
+        if (!mentorRepository.existsById(mentorId)) {
+            System.out.println("❌ Mentor ID " + mentorId + " does not exist - cannot create sample packages");
+            return;
+        }
+        
         // Create 6-month package similar to Shubham Khanna's profile
         MentorshipPackageDTO sixMonthPackage = new MentorshipPackageDTO();
-        sixMonthPackage.setMentorId(1L); // Assuming mentor ID 1 exists
+        sixMonthPackage.setMentorId(mentorId); // Use valid mentor ID
         sixMonthPackage.setPackageName("6 Months Complete Software Engineering Mentorship");
         sixMonthPackage.setDescription("Comprehensive mentorship covering DSA, System Design, Mock Interviews, and career guidance for software engineers");
         sixMonthPackage.setDurationMonths(6);
@@ -79,7 +97,7 @@ public class SampleDataCreator implements CommandLineRunner {
         
         // Create 3-month package
         MentorshipPackageDTO threeMonthPackage = new MentorshipPackageDTO();
-        threeMonthPackage.setMentorId(1L);
+        threeMonthPackage.setMentorId(mentorId); // Use valid mentor ID
         threeMonthPackage.setPackageName("3 Months Intensive DSA Bootcamp");
         threeMonthPackage.setDescription("Focused DSA preparation with daily practice and weekly mock interviews");
         threeMonthPackage.setDurationMonths(3);
@@ -120,7 +138,7 @@ public class SampleDataCreator implements CommandLineRunner {
         
         // Create 1-month package
         MentorshipPackageDTO oneMonthPackage = new MentorshipPackageDTO();
-        oneMonthPackage.setMentorId(1L);
+        oneMonthPackage.setMentorId(mentorId); // Use valid mentor ID
         oneMonthPackage.setPackageName("1 Month Interview Preparation");
         oneMonthPackage.setDescription("Intensive interview preparation with daily mock interviews and feedback");
         oneMonthPackage.setDurationMonths(1);
@@ -157,10 +175,16 @@ public class SampleDataCreator implements CommandLineRunner {
         
         packageService.createPackage(oneMonthPackage);
         
-        System.out.println("Sample packages created successfully!");
+        System.out.println("✅ Sample packages created successfully for mentor ID: " + mentorId);
     }
     
-    private void createSampleTrialSessions() throws Exception {
+    private void createSampleTrialSessions(Long mentorId) throws Exception {
+        // Validate mentor exists before creating any trial sessions
+        if (!mentorRepository.existsById(mentorId)) {
+            System.out.println("❌ Mentor ID " + mentorId + " does not exist - cannot create sample trial sessions");
+            return;
+        }
+        
         // Create trial sessions for September 2025
         List<LocalDateTime> availableSlots = Arrays.asList(
             LocalDateTime.of(2025, 9, 3, 21, 30), // Sep 3, 9:30 PM
@@ -170,8 +194,8 @@ public class SampleDataCreator implements CommandLineRunner {
             LocalDateTime.of(2025, 9, 7, 21, 30)  // Sep 7, 9:30 PM
         );
         
-        trialSessionService.createMultipleAvailableSlots(1L, availableSlots, 30);
+        trialSessionService.createMultipleAvailableSlots(mentorId, availableSlots, 30);
         
-        System.out.println("Sample trial sessions created successfully!");
+        System.out.println("✅ Sample trial sessions created successfully for mentor ID: " + mentorId);
     }
 }

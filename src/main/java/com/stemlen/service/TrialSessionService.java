@@ -50,4 +50,10 @@ public interface TrialSessionService {
     
     // Delete trial session
     void deleteTrialSession(Long id) throws PortalException;
+    
+    // Validate and cleanup orphaned trial sessions (sessions with invalid mentorId)
+    List<TrialSessionDTO> findOrphanedTrialSessions() throws PortalException;
+    
+    // Delete orphaned trial sessions (sessions with invalid mentorId)
+    void cleanupOrphanedTrialSessions() throws PortalException;
 }

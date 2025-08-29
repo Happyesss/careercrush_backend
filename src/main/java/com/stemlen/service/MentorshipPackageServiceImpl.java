@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.stemlen.dto.MentorshipPackageDTO;
 import com.stemlen.entity.MentorshipPackage;
 import com.stemlen.exception.PortalException;
+import com.stemlen.repository.MentorRepository;
 import com.stemlen.repository.MentorshipPackageRepository;
 import com.stemlen.utility.Utilities;
 
@@ -19,8 +20,19 @@ public class MentorshipPackageServiceImpl implements MentorshipPackageService {
     @Autowired
     private MentorshipPackageRepository packageRepository;
     
+    @Autowired
+    private MentorRepository mentorRepository;
+    
     @Override
     public MentorshipPackageDTO createPackage(MentorshipPackageDTO packageDTO) throws PortalException {
+        // Validate that the mentor exists
+        if (packageDTO.getMentorId() != null) {
+            mentorRepository.findById(packageDTO.getMentorId())
+                    .orElseThrow(() -> new PortalException("MENTOR_NOT_FOUND: Mentor with ID " + packageDTO.getMentorId() + " does not exist"));
+        } else {
+            throw new PortalException("MENTOR_ID_REQUIRED: Mentor ID is required for creating mentorship package");
+        }
+        
         if (Objects.isNull(packageDTO.getId()) || packageDTO.getId() == 0) {
             packageDTO.setId(Utilities.getNextSequence("mentorshipPackages"));
             packageDTO.setCreatedAt(LocalDateTime.now());
@@ -146,5 +158,36 @@ public class MentorshipPackageServiceImpl implements MentorshipPackageService {
         return packageRepository.findBySessionType(sessionType).stream()
                 .map(MentorshipPackage::toDTO)
                 .toList();
+    }
+    
+    @Override
+    public List<MentorshipPackageDTO> findOrphanedPackages() throws PortalException {
+        List<MentorshipPackage> allPackages = packageRepository.findAll();
+        List<MentorshipPackage> orphanedPackages = allPackages.stream()
+                .filter(pkg -> {
+                    // Check if the mentorId exists in the mentor collection
+                    if (pkg.getMentorId() == null) {
+                        return true; // Packages without mentorId are orphaned
+                    }
+                    return !mentorRepository.existsById(pkg.getMentorId());
+                })
+                .toList();
+                
+        return orphanedPackages.stream()
+                .map(MentorshipPackage::toDTO)
+                .toList();
+    }
+    
+    @Override
+    public void cleanupOrphanedPackages() throws PortalException {
+        List<MentorshipPackageDTO> orphanedPackages = findOrphanedPackages();
+        for (MentorshipPackageDTO packageDTO : orphanedPackages) {
+            // Deactivate orphaned packages instead of deleting to preserve data
+            MentorshipPackage pkg = packageRepository.findById(packageDTO.getId())
+                    .orElseThrow(() -> new PortalException("PACKAGE_NOT_FOUND"));
+            pkg.setIsActive(false);
+            packageRepository.save(pkg);
+            System.out.println("⚠️  Deactivated orphaned package: " + packageDTO.getPackageName() + " (Mentor ID: " + packageDTO.getMentorId() + ")");
+        }
     }
 }

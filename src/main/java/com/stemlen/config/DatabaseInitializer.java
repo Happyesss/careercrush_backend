@@ -22,7 +22,8 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     private void initializeSequences() {
         // Initialize sequences for different collections
-        String[] sequenceKeys = {"users", "profiles", "hackathon", "jobs", "applications"};
+        String[] sequenceKeys = {"users", "profiles", "hackathon", "jobs", "applications", 
+                               "mentors", "mentorshipPackages", "trialSessions"};
         
         for (String key : sequenceKeys) {
             initializeSequence(key);

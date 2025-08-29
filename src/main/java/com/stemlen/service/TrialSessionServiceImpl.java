@@ -11,6 +11,7 @@ import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.dto.TrialSessionStatus;
 import com.stemlen.entity.TrialSession;
 import com.stemlen.exception.PortalException;
+import com.stemlen.repository.MentorRepository;
 import com.stemlen.repository.TrialSessionRepository;
 import com.stemlen.utility.Utilities;
 
@@ -20,8 +21,19 @@ public class TrialSessionServiceImpl implements TrialSessionService {
     @Autowired
     private TrialSessionRepository trialSessionRepository;
     
+    @Autowired
+    private MentorRepository mentorRepository;
+    
     @Override
     public TrialSessionDTO createAvailableSlot(TrialSessionDTO trialSessionDTO) throws PortalException {
+        // Validate that the mentor exists
+        if (trialSessionDTO.getMentorId() != null) {
+            mentorRepository.findById(trialSessionDTO.getMentorId())
+                    .orElseThrow(() -> new PortalException("MENTOR_NOT_FOUND: Mentor with ID " + trialSessionDTO.getMentorId() + " does not exist"));
+        } else {
+            throw new PortalException("MENTOR_ID_REQUIRED: Mentor ID is required for creating trial session");
+        }
+        
         if (Objects.isNull(trialSessionDTO.getId()) || trialSessionDTO.getId() == 0) {
             trialSessionDTO.setId(Utilities.getNextSequence("trialSessions"));
             trialSessionDTO.setCreatedAt(LocalDateTime.now());
@@ -148,6 +160,10 @@ public class TrialSessionServiceImpl implements TrialSessionService {
     
     @Override
     public List<TrialSessionDTO> createMultipleAvailableSlots(Long mentorId, List<LocalDateTime> dateTimeSlots, Integer durationMinutes) throws PortalException {
+        // Validate that the mentor exists before creating any sessions
+        mentorRepository.findById(mentorId)
+                .orElseThrow(() -> new PortalException("MENTOR_NOT_FOUND: Mentor with ID " + mentorId + " does not exist"));
+        
         List<TrialSession> sessions = dateTimeSlots.stream()
                 .map(dateTime -> {
                     TrialSession session = new TrialSession();
@@ -179,5 +195,31 @@ public class TrialSessionServiceImpl implements TrialSessionService {
             throw new PortalException("TRIAL_SESSION_NOT_FOUND");
         }
         trialSessionRepository.deleteById(id);
+    }
+    
+    @Override
+    public List<TrialSessionDTO> findOrphanedTrialSessions() throws PortalException {
+        List<TrialSession> allSessions = trialSessionRepository.findAll();
+        List<TrialSession> orphanedSessions = allSessions.stream()
+                .filter(session -> {
+                    // Check if the mentorId exists in the mentor collection
+                    if (session.getMentorId() == null) {
+                        return true; // Sessions without mentorId are orphaned
+                    }
+                    return !mentorRepository.existsById(session.getMentorId());
+                })
+                .toList();
+                
+        return orphanedSessions.stream()
+                .map(TrialSession::toDTO)
+                .toList();
+    }
+    
+    @Override
+    public void cleanupOrphanedTrialSessions() throws PortalException {
+        List<TrialSessionDTO> orphanedSessions = findOrphanedTrialSessions();
+        for (TrialSessionDTO session : orphanedSessions) {
+            deleteTrialSession(session.getId());
+        }
     }
 }

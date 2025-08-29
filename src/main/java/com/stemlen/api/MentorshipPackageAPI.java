@@ -98,4 +98,17 @@ public class MentorshipPackageAPI {
         packageService.deletePackage(id);
         return new ResponseEntity<>(new ResponseDTO("Package deleted successfully"), HttpStatus.OK);
     }
+    
+    // Get orphaned packages (packages with invalid mentor IDs)
+    @GetMapping("/orphaned")
+    public ResponseEntity<List<MentorshipPackageDTO>> getOrphanedPackages() throws PortalException {
+        return new ResponseEntity<>(packageService.findOrphanedPackages(), HttpStatus.OK);
+    }
+    
+    // Cleanup orphaned packages
+    @DeleteMapping("/cleanup-orphaned")
+    public ResponseEntity<ResponseDTO> cleanupOrphanedPackages() throws PortalException {
+        packageService.cleanupOrphanedPackages();
+        return new ResponseEntity<>(new ResponseDTO("Orphaned packages cleaned up successfully"), HttpStatus.OK);
+    }
 }
