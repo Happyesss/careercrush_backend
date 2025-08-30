@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stemlen.dto.MentorshipPackageDTO;
-import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.entity.MentorshipPackage;
-import com.stemlen.entity.TrialSession;
 import com.stemlen.exception.PortalException;
 import com.stemlen.repository.MentorRepository;
 import com.stemlen.repository.MentorshipPackageRepository;
-import com.stemlen.repository.TrialSessionRepository;
 
 @Service("dataIntegrityService")
 public class DataIntegrityServiceImpl implements DataIntegrityService {
@@ -23,9 +20,6 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
     
     @Autowired
     private MentorshipPackageRepository packageRepository;
-    
-    @Autowired
-    private TrialSessionRepository trialSessionRepository;
     
     @Override
     public List<MentorshipPackageDTO> findOrphanedPackages() throws PortalException {
@@ -42,24 +36,6 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
                 
         return orphanedPackages.stream()
                 .map(MentorshipPackage::toDTO)
-                .toList();
-    }
-    
-    @Override
-    public List<TrialSessionDTO> findOrphanedTrialSessions() throws PortalException {
-        List<TrialSession> allSessions = trialSessionRepository.findAll();
-        List<TrialSession> orphanedSessions = allSessions.stream()
-                .filter(session -> {
-                    // Check if the mentorId exists in the mentor collection
-                    if (session.getMentorId() == null) {
-                        return true; // Sessions without mentorId are orphaned
-                    }
-                    return !mentorRepository.existsById(session.getMentorId());
-                })
-                .toList();
-                
-        return orphanedSessions.stream()
-                .map(TrialSession::toDTO)
                 .toList();
     }
     
@@ -99,33 +75,6 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
     }
     
     @Override
-    public int fixOrphanedTrialSessions(boolean deleteOrphaned) throws PortalException {
-        List<TrialSessionDTO> orphanedSessions = findOrphanedTrialSessions();
-        int processedCount = 0;
-        
-        for (TrialSessionDTO sessionDTO : orphanedSessions) {
-            if (deleteOrphaned) {
-                // Delete orphaned session
-                trialSessionRepository.deleteById(sessionDTO.getId());
-                processedCount++;
-                System.out.println("🗑️  Deleted orphaned trial session (ID: " + sessionDTO.getId() + ")");
-            } else {
-                // Cancel orphaned session instead of deleting
-                Optional<TrialSession> sessionOpt = trialSessionRepository.findById(sessionDTO.getId());
-                if (sessionOpt.isPresent()) {
-                    TrialSession session = sessionOpt.get();
-                    session.setStatus(com.stemlen.dto.TrialSessionStatus.CANCELLED);
-                    trialSessionRepository.save(session);
-                    processedCount++;
-                    System.out.println("⚠️  Cancelled orphaned trial session (ID: " + sessionDTO.getId() + ")");
-                }
-            }
-        }
-        
-        return processedCount;
-    }
-    
-    @Override
     public String generateIntegrityReport() throws PortalException {
         StringBuilder report = new StringBuilder();
         report.append("=== MENTOR DATA INTEGRITY REPORT ===\n\n");
@@ -133,12 +82,10 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
         // Count total entities
         long totalMentors = mentorRepository.count();
         long totalPackages = packageRepository.count();
-        long totalTrialSessions = trialSessionRepository.count();
         
         report.append("📊 Database Statistics:\n");
         report.append("   - Total Mentors: ").append(totalMentors).append("\n");
-        report.append("   - Total Packages: ").append(totalPackages).append("\n");
-        report.append("   - Total Trial Sessions: ").append(totalTrialSessions).append("\n\n");
+        report.append("   - Total Packages: ").append(totalPackages).append("\n\n");
         
         // Check for orphaned packages
         List<MentorshipPackageDTO> orphanedPackages = findOrphanedPackages();
@@ -155,22 +102,8 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
         }
         report.append("\n");
         
-        // Check for orphaned trial sessions
-        List<TrialSessionDTO> orphanedSessions = findOrphanedTrialSessions();
-        report.append("🔍 Orphaned Trial Sessions: ").append(orphanedSessions.size()).append("\n");
-        if (!orphanedSessions.isEmpty()) {
-            report.append("   Issues found:\n");
-            for (TrialSessionDTO session : orphanedSessions) {
-                report.append("   - Trial Session (ID: ").append(session.getId())
-                      .append(") references non-existent mentor ID: ").append(session.getMentorId()).append("\n");
-            }
-        } else {
-            report.append("   ✅ All trial sessions have valid mentor references\n");
-        }
-        report.append("\n");
-        
         // Summary
-        int totalIssues = orphanedPackages.size() + orphanedSessions.size();
+        int totalIssues = orphanedPackages.size();
         if (totalIssues == 0) {
             report.append("🎉 EXCELLENT! No data integrity issues found.\n");
         } else {
@@ -192,11 +125,7 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
         int packagesFixed = fixOrphanedPackages(false);
         summary.append("📦 Packages processed: ").append(packagesFixed).append(" (deactivated)\n");
         
-        // Fix orphaned trial sessions (cancel instead of delete to preserve data)
-        int sessionsFixed = fixOrphanedTrialSessions(false);
-        summary.append("📅 Trial sessions processed: ").append(sessionsFixed).append(" (cancelled)\n");
-        
-        int totalFixed = packagesFixed + sessionsFixed;
+        int totalFixed = packagesFixed;
         summary.append("\n");
         
         if (totalFixed == 0) {
@@ -204,7 +133,6 @@ public class DataIntegrityServiceImpl implements DataIntegrityService {
         } else {
             summary.append("🔧 Total issues resolved: ").append(totalFixed).append("\n");
             summary.append("   - Orphaned packages have been deactivated\n");
-            summary.append("   - Orphaned trial sessions have been cancelled\n");
             summary.append("   - Data preserved for future manual review if needed\n");
         }
         

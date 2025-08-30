@@ -15,6 +15,7 @@ import com.stemlen.dto.SessionStatus;
 import com.stemlen.entity.Mentor;
 import com.stemlen.exception.PortalException;
 import com.stemlen.repository.MentorRepository;
+import com.stemlen.repository.UserRepository;
 import com.stemlen.utility.Utilities;
 
 @Service("mentorService")
@@ -22,11 +23,27 @@ public class MentorServiceImpl implements MentorService {
     
     @Autowired
     private MentorRepository mentorRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     
     @Override
     public MentorDTO createMentor(MentorDTO mentorDTO) throws PortalException {
         if (Objects.isNull(mentorDTO.getId()) || mentorDTO.getId() == 0) {
-            mentorDTO.setId(Utilities.getNextSequence("mentors"));
+            // If a user exists with this email and has a profileId, prefer reusing it
+            Long preferredId = null;
+            if (mentorDTO.getEmail() != null) {
+                userRepository.findByEmail(mentorDTO.getEmail()).ifPresent(user -> {
+                    // Only reuse if set
+                    if (user.getProfileId() != null) {
+                        mentorDTO.setId(user.getProfileId());
+                    }
+                });
+            }
+
+            if (mentorDTO.getId() == null || mentorDTO.getId() == 0) {
+                mentorDTO.setId(Utilities.getNextSequence("mentors"));
+            }
             mentorDTO.setJoinDate(LocalDateTime.now());
             
             // Set default values for new mentors
@@ -42,6 +59,16 @@ public class MentorServiceImpl implements MentorService {
         }
         
         Mentor mentor = mentorRepository.save(mentorDTO.toEntity());
+
+        // Sync user's profileId if a user with the same email exists and profileId differs
+        if (mentor.getEmail() != null) {
+            userRepository.findByEmail(mentor.getEmail()).ifPresent(user -> {
+                if (user.getProfileId() == null || !Objects.equals(user.getProfileId(), mentor.getId())) {
+                    user.setProfileId(mentor.getId());
+                    userRepository.save(user);
+                }
+            });
+        }
         return mentor.toDTO();
     }
     

@@ -1,10 +1,10 @@
 package com.stemlen.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.stemlen.entity.TrialSession;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,41 +13,61 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrialSessionDTO {
+    
     private Long id;
-    private Long mentorId;
-    private Long menteeId;
-    private Long packageId;
+    
+    @NotNull(message = "Mentor ID is required")
+    private Long mentorId;          // The mentor who owns this session
+    
+    private Long menteeId;          // Who booked the session
+    private Long packageId;         // Associated mentorship package
+    
+    @NotNull(message = "Scheduled date/time is required")
     private LocalDateTime scheduledDateTime;
-    private Integer durationMinutes;
-    private TrialSessionStatus status;
-    private String sessionType;
+    
+    private Integer durationMinutes = 30; // Default 30 minutes
+    private TrialSessionStatus status = TrialSessionStatus.AVAILABLE;
+    private String sessionType = "Video Call";
+    
+    // Meeting details
     private String meetingLink;
-    private String notes;
+    private String meetingId;
+    private String meetingPassword;
+    
+    // Mentee details (when booked)
     private String menteeEmail;
     private String menteeName;
     private String menteePhone;
-    private List<String> availableTimeSlots;
+    
+    // Session notes and tracking
+    private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime completedAt;
     
+    /**
+     * Convert DTO to entity
+     */
     public TrialSession toEntity() {
-        TrialSession entity = new TrialSession();
-        entity.setId(this.id);
-        entity.setMentorId(this.mentorId);
-        entity.setMenteeId(this.menteeId);
-        entity.setPackageId(this.packageId);
-        entity.setScheduledDateTime(this.scheduledDateTime);
-        entity.setDurationMinutes(this.durationMinutes);
-        entity.setStatus(this.status);
-        entity.setSessionType(this.sessionType);
-        entity.setMeetingLink(this.meetingLink);
-        entity.setNotes(this.notes);
-        entity.setMenteeEmail(this.menteeEmail);
-        entity.setMenteeName(this.menteeName);
-        entity.setMenteePhone(this.menteePhone);
-        entity.setAvailableTimeSlots(this.availableTimeSlots);
-        entity.setCreatedAt(this.createdAt);
-        entity.setUpdatedAt(this.updatedAt);
-        return entity;
+        return new TrialSession(
+            this.id,
+            this.mentorId,
+            this.menteeId,
+            this.packageId,
+            this.scheduledDateTime,
+            this.durationMinutes != null ? this.durationMinutes : 30,
+            this.status != null ? this.status : TrialSessionStatus.AVAILABLE,
+            this.sessionType != null ? this.sessionType : "Video Call",
+            this.meetingLink,
+            this.meetingId,
+            this.meetingPassword,
+            this.menteeEmail,
+            this.menteeName,
+            this.menteePhone,
+            this.notes,
+            this.createdAt,
+            this.updatedAt,
+            this.completedAt
+        );
     }
 }

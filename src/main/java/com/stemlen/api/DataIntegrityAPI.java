@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.stemlen.dto.MentorshipPackageDTO;
 import com.stemlen.dto.ResponseDTO;
-import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.exception.PortalException;
 import com.stemlen.service.DataIntegrityService;
 
@@ -43,12 +42,6 @@ public class DataIntegrityAPI {
         return new ResponseEntity<>(dataIntegrityService.findOrphanedPackages(), HttpStatus.OK);
     }
     
-    // Find all orphaned trial sessions
-    @GetMapping("/orphaned-sessions")
-    public ResponseEntity<List<TrialSessionDTO>> findOrphanedTrialSessions() throws PortalException {
-        return new ResponseEntity<>(dataIntegrityService.findOrphanedTrialSessions(), HttpStatus.OK);
-    }
-    
     // Validate mentor exists
     @GetMapping("/validate-mentor/{mentorId}")
     public ResponseEntity<ResponseDTO> validateMentorExists(@PathVariable Long mentorId) throws PortalException {
@@ -63,15 +56,6 @@ public class DataIntegrityAPI {
         int count = dataIntegrityService.fixOrphanedPackages(delete);
         String action = delete ? "deleted" : "deactivated";
         String message = "Successfully " + action + " " + count + " orphaned packages";
-        return new ResponseEntity<>(new ResponseDTO(message), HttpStatus.OK);
-    }
-    
-    // Fix orphaned trial sessions
-    @PostMapping("/fix-sessions")
-    public ResponseEntity<ResponseDTO> fixOrphanedTrialSessions(@RequestParam(defaultValue = "false") boolean delete) throws PortalException {
-        int count = dataIntegrityService.fixOrphanedTrialSessions(delete);
-        String action = delete ? "deleted" : "cancelled";
-        String message = "Successfully " + action + " " + count + " orphaned trial sessions";
         return new ResponseEntity<>(new ResponseDTO(message), HttpStatus.OK);
     }
 }

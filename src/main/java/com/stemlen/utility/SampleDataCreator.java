@@ -10,15 +10,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.stemlen.dto.MentorshipPackageDTO;
-import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.entity.PackageModule;
 import com.stemlen.repository.MentorRepository;
 import com.stemlen.service.MentorshipPackageService;
-import com.stemlen.service.TrialSessionService;
 
 /**
  * Sample data creator for testing the mentorship packages system
- * This component creates sample packages and trial sessions when the application starts
+ * This component creates sample packages when the application starts
  * Comment out @Component annotation in production
  * IMPORTANT: Only creates data if valid mentors exist
  */
@@ -27,9 +25,6 @@ public class SampleDataCreator implements CommandLineRunner {
     
     @Autowired
     private MentorshipPackageService packageService;
-    
-    @Autowired
-    private TrialSessionService trialSessionService;
     
     @Autowired
     private MentorRepository mentorRepository;
@@ -41,7 +36,6 @@ public class SampleDataCreator implements CommandLineRunner {
             // Get the first available mentor ID
             Long firstMentorId = mentorRepository.findAll().get(0).getId();
             createSamplePackages(firstMentorId);
-            createSampleTrialSessions(firstMentorId);
         } else {
             System.out.println("⚠️  No mentors found - skipping sample data creation. Please create mentors first.");
         }
@@ -176,26 +170,5 @@ public class SampleDataCreator implements CommandLineRunner {
         packageService.createPackage(oneMonthPackage);
         
         System.out.println("✅ Sample packages created successfully for mentor ID: " + mentorId);
-    }
-    
-    private void createSampleTrialSessions(Long mentorId) throws Exception {
-        // Validate mentor exists before creating any trial sessions
-        if (!mentorRepository.existsById(mentorId)) {
-            System.out.println("❌ Mentor ID " + mentorId + " does not exist - cannot create sample trial sessions");
-            return;
-        }
-        
-        // Create trial sessions for September 2025
-        List<LocalDateTime> availableSlots = Arrays.asList(
-            LocalDateTime.of(2025, 9, 3, 21, 30), // Sep 3, 9:30 PM
-            LocalDateTime.of(2025, 9, 4, 21, 30), // Sep 4, 9:30 PM
-            LocalDateTime.of(2025, 9, 5, 21, 30), // Sep 5, 9:30 PM
-            LocalDateTime.of(2025, 9, 6, 21, 30), // Sep 6, 9:30 PM
-            LocalDateTime.of(2025, 9, 7, 21, 30)  // Sep 7, 9:30 PM
-        );
-        
-        trialSessionService.createMultipleAvailableSlots(mentorId, availableSlots, 30);
-        
-        System.out.println("✅ Sample trial sessions created successfully for mentor ID: " + mentorId);
     }
 }

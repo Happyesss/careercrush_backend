@@ -3,7 +3,6 @@ package com.stemlen.service;
 import java.util.List;
 
 import com.stemlen.dto.MentorshipPackageDTO;
-import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.exception.PortalException;
 
 public interface DataIntegrityService {
@@ -14,13 +13,6 @@ public interface DataIntegrityService {
      * @throws PortalException if operation fails
      */
     List<MentorshipPackageDTO> findOrphanedPackages() throws PortalException;
-    
-    /**
-     * Find all trial sessions with invalid mentor IDs
-     * @return List of trial sessions with invalid mentor references
-     * @throws PortalException if operation fails
-     */
-    List<TrialSessionDTO> findOrphanedTrialSessions() throws PortalException;
     
     /**
      * Validate mentor ID exists before creating/updating packages or sessions
@@ -37,14 +29,6 @@ public interface DataIntegrityService {
      * @throws PortalException if operation fails
      */
     int fixOrphanedPackages(boolean deleteOrphaned) throws PortalException;
-    
-    /**
-     * Fix orphaned trial sessions by either deleting them or reassigning to valid mentors
-     * @param deleteOrphaned true to delete orphaned sessions, false to attempt reassignment
-     * @return count of sessions processed
-     * @throws PortalException if operation fails
-     */
-    int fixOrphanedTrialSessions(boolean deleteOrphaned) throws PortalException;
     
     /**
      * Perform comprehensive data integrity check and generate report

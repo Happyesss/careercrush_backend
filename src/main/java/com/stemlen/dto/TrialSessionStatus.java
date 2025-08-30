@@ -1,9 +1,10 @@
 package com.stemlen.dto;
 
 public enum TrialSessionStatus {
-    AVAILABLE,    // Time slot is available for booking
-    BOOKED,       // Trial session has been booked
-    COMPLETED,    // Trial session has been completed
-    CANCELLED,    // Trial session was cancelled
-    NO_SHOW       // Mentee didn't show up for trial
+    AVAILABLE,      // Session slot is available for booking
+    BOOKED,         // Session has been booked by a mentee
+    COMPLETED,      // Session has been completed
+    CANCELLED,      // Session has been cancelled
+    NO_SHOW,        // Mentee didn't show up
+    RESCHEDULED     // Session was rescheduled
 }

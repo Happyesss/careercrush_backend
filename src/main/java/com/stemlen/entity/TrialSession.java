@@ -1,7 +1,7 @@
 package com.stemlen.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Base64;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,31 +18,60 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Document(collection = "trial_sessions")
 public class TrialSession {
+    
     @Id
     private Long id;
-    private Long mentorId; // Reference to mentor
-    private Long menteeId; // Reference to mentee (can be null for available slots)
-    private Long packageId; // Reference to the package being trialed
-    private LocalDateTime scheduledDateTime; // When the trial is scheduled
-    private Integer durationMinutes; // Duration of trial session (usually 30 mins)
-    private TrialSessionStatus status; // AVAILABLE, BOOKED, COMPLETED, CANCELLED
-    private String sessionType; // Video call, phone, etc.
-    private String meetingLink; // Video call link
-    private String notes; // Any notes from mentor/mentee
-    private String menteeEmail; // Email of person booking trial
-    private String menteeName; // Name of person booking trial
-    private String menteePhone; // Phone number (optional)
-    private List<String> availableTimeSlots; // For available sessions
+    
+    // 🔒 OWNERSHIP FIELD - Critical for security
+    private Long mentorId;          // The mentor who created this session
+    
+    private Long menteeId;          // Who booked the session (nullable until booked)
+    private Long packageId;         // Associated mentorship package (optional)
+    
+    private LocalDateTime scheduledDateTime;
+    private Integer durationMinutes;
+    private TrialSessionStatus status;
+    private String sessionType;
+    
+    // Meeting details
+    private String meetingLink;
+    private String meetingId;
+    private String meetingPassword;
+    
+    // Mentee details (when booked)
+    private String menteeEmail;
+    private String menteeName;
+    private String menteePhone;
+    
+    // Session notes and tracking
+    private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime completedAt;
     
+    /**
+     * Convert entity to DTO
+     */
     public TrialSessionDTO toDTO() {
         return new TrialSessionDTO(
-            this.id, this.mentorId, this.menteeId, this.packageId,
-            this.scheduledDateTime, this.durationMinutes, this.status,
-            this.sessionType, this.meetingLink, this.notes,
-            this.menteeEmail, this.menteeName, this.menteePhone,
-            this.availableTimeSlots, this.createdAt, this.updatedAt
+            this.id,
+            this.mentorId,
+            this.menteeId,
+            this.packageId,
+            this.scheduledDateTime,
+            this.durationMinutes,
+            this.status,
+            this.sessionType,
+            this.meetingLink,
+            this.meetingId,
+            this.meetingPassword,
+            this.menteeEmail,
+            this.menteeName,
+            this.menteePhone,
+            this.notes,
+            this.createdAt,
+            this.updatedAt,
+            this.completedAt
         );
     }
 }

@@ -52,7 +52,6 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/packages/active", 
                     "/packages/mentor/*/active",
-                    "/trial-sessions/mentor/*/available",
                     "/subscriptions/quote",
                     "/payments/create-order",
                     "/payments/webhook/paid"

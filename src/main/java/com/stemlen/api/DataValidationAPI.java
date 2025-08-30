@@ -26,23 +26,10 @@ public class DataValidationAPI {
         return new ResponseEntity<>(dataValidationService.getDataIntegrityReport(), HttpStatus.OK);
     }
     
-    // Validate mentor-trial session sync
-    @GetMapping("/mentor-trial-sessions")
-    public ResponseEntity<DataValidationReport> validateMentorTrialSessionSync() throws PortalException {
-        return new ResponseEntity<>(dataValidationService.validateMentorTrialSessionSync(), HttpStatus.OK);
-    }
-    
     // Validate mentor-package sync
     @GetMapping("/mentor-packages")
     public ResponseEntity<DataValidationReport> validateMentorPackageSync() throws PortalException {
         return new ResponseEntity<>(dataValidationService.validateMentorPackageSync(), HttpStatus.OK);
-    }
-    
-    // Fix orphaned trial sessions
-    @PostMapping("/fix-orphaned-trial-sessions")
-    public ResponseEntity<ResponseDTO> fixOrphanedTrialSessions() throws PortalException {
-        String result = dataValidationService.fixOrphanedTrialSessions();
-        return new ResponseEntity<>(new ResponseDTO(result), HttpStatus.OK);
     }
     
     // Fix orphaned mentorship packages
@@ -55,10 +42,7 @@ public class DataValidationAPI {
     // Fix all data integrity issues
     @PostMapping("/fix-all")
     public ResponseEntity<ResponseDTO> fixAllDataIntegrityIssues() throws PortalException {
-        String trialSessionResult = dataValidationService.fixOrphanedTrialSessions();
         String packageResult = dataValidationService.fixOrphanedMentorshipPackages();
-        
-        String combinedResult = trialSessionResult + "; " + packageResult;
-        return new ResponseEntity<>(new ResponseDTO(combinedResult), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDTO(packageResult), HttpStatus.OK);
     }
 }

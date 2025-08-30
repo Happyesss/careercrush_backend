@@ -10,11 +10,9 @@ import org.springframework.stereotype.Service;
 import com.stemlen.dto.DataValidationReport;
 import com.stemlen.dto.DataValidationReport.ValidationIssue;
 import com.stemlen.entity.MentorshipPackage;
-import com.stemlen.entity.TrialSession;
 import com.stemlen.exception.PortalException;
 import com.stemlen.repository.MentorRepository;
 import com.stemlen.repository.MentorshipPackageRepository;
-import com.stemlen.repository.TrialSessionRepository;
 
 @Service("dataValidationService")
 public class DataValidationServiceImpl implements DataValidationService {
@@ -23,41 +21,7 @@ public class DataValidationServiceImpl implements DataValidationService {
     private MentorRepository mentorRepository;
     
     @Autowired
-    private TrialSessionRepository trialSessionRepository;
-    
-    @Autowired
     private MentorshipPackageRepository packageRepository;
-    
-    @Override
-    public DataValidationReport validateMentorTrialSessionSync() throws PortalException {
-        List<ValidationIssue> issues = new ArrayList<>();
-        
-        // Find trial sessions with invalid mentor IDs
-        List<TrialSession> allSessions = trialSessionRepository.findAll();
-        for (TrialSession session : allSessions) {
-            if (session.getMentorId() == null) {
-                issues.add(new ValidationIssue(
-                    "MISSING_MENTOR_ID",
-                    "TrialSession",
-                    session.getId(),
-                    "Trial session has null mentorId",
-                    "HIGH",
-                    "Delete trial session or assign valid mentor ID"
-                ));
-            } else if (!mentorRepository.existsById(session.getMentorId())) {
-                issues.add(new ValidationIssue(
-                    "INVALID_MENTOR_REFERENCE",
-                    "TrialSession", 
-                    session.getId(),
-                    "Trial session references non-existent mentor ID: " + session.getMentorId(),
-                    "HIGH",
-                    "Delete trial session or correct mentor ID"
-                ));
-            }
-        }
-        
-        return createReport("MENTOR_TRIAL_SESSION_SYNC", issues);
-    }
     
     @Override
     public DataValidationReport validateMentorPackageSync() throws PortalException {
@@ -95,28 +59,11 @@ public class DataValidationServiceImpl implements DataValidationService {
         List<ValidationIssue> allIssues = new ArrayList<>();
         
         // Combine all validation checks
-        DataValidationReport trialSessionReport = validateMentorTrialSessionSync();
         DataValidationReport packageReport = validateMentorPackageSync();
         
-        allIssues.addAll(trialSessionReport.getDetailedIssues());
         allIssues.addAll(packageReport.getDetailedIssues());
         
         return createReport("COMPREHENSIVE_DATA_INTEGRITY", allIssues);
-    }
-    
-    @Override
-    public String fixOrphanedTrialSessions() throws PortalException {
-        List<TrialSession> allSessions = trialSessionRepository.findAll();
-        List<TrialSession> toDelete = new ArrayList<>();
-        
-        for (TrialSession session : allSessions) {
-            if (session.getMentorId() == null || !mentorRepository.existsById(session.getMentorId())) {
-                toDelete.add(session);
-            }
-        }
-        
-        trialSessionRepository.deleteAll(toDelete);
-        return "Deleted " + toDelete.size() + " orphaned trial sessions";
     }
     
     @Override
