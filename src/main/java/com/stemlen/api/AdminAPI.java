@@ -23,7 +23,7 @@ public class AdminAPI {
     public ResponseEntity<ResponseDTO> initializeSequences() {
         try {
             // Initialize all required sequences
-            String[] sequenceKeys = {"users", "profiles", "hackathon", "jobs", "applications"};
+            String[] sequenceKeys = {"users", "profiles", "jobs", "applications"};
             
             for (String key : sequenceKeys) {
                 Utilities.initializeSequence(key, 0L);
