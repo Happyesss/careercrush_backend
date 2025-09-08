@@ -42,6 +42,11 @@ public class MentorshipPackage {
     private Boolean hasCertification; // Certification of mentorship completion
     private Boolean hasRescheduling; // Reschedule anytime capability
     
+    // Discount fields for pricing strategy
+    private Double threeMonthDiscount; // Discount percentage for 3-month plan
+    private Double sixMonthDiscount; // Discount percentage for 6-month plan
+    private Double originalPricePerMonth; // Original price before discounts
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -68,6 +73,9 @@ public class MentorshipPackage {
         dto.setHasJobReferrals(this.hasJobReferrals);
         dto.setHasCertification(this.hasCertification);
         dto.setHasRescheduling(this.hasRescheduling);
+        dto.setThreeMonthDiscount(this.threeMonthDiscount);
+        dto.setSixMonthDiscount(this.sixMonthDiscount);
+        dto.setOriginalPricePerMonth(this.originalPricePerMonth);
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
         return dto;

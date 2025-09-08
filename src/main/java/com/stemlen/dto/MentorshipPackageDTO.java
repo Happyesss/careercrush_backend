@@ -38,6 +38,11 @@ public class MentorshipPackageDTO {
     private Boolean hasCertification; // Certification of mentorship completion
     private Boolean hasRescheduling; // Reschedule anytime capability
     
+    // Discount fields for pricing strategy
+    private Double threeMonthDiscount; // Discount percentage for 3-month plan
+    private Double sixMonthDiscount; // Discount percentage for 6-month plan
+    private Double originalPricePerMonth; // Original price before discounts
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -64,6 +69,9 @@ public class MentorshipPackageDTO {
         entity.setHasJobReferrals(this.hasJobReferrals);
         entity.setHasCertification(this.hasCertification);
         entity.setHasRescheduling(this.hasRescheduling);
+        entity.setThreeMonthDiscount(this.threeMonthDiscount);
+        entity.setSixMonthDiscount(this.sixMonthDiscount);
+        entity.setOriginalPricePerMonth(this.originalPricePerMonth);
         entity.setCreatedAt(this.createdAt);
         entity.setUpdatedAt(this.updatedAt);
         return entity;
