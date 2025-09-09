@@ -53,16 +53,16 @@ public class UserDTO {
 
     // Convert UserDTO to User entity
     public User toEntity() {
-        return new User(
-            this.id,
-            this.name,
-            this.email,
-            this.password,
-            this.accountType,
-            this.profileId,
-            this.provider,
-            this.emailVerified,
-            this.verificationToken 
-        );
+        User user = new User();
+        user.setId(this.id);
+        user.setName(this.name);
+        user.setEmail(this.email);
+        user.setPassword(this.password);
+        user.setAccountType(this.accountType);
+        user.setProfileId(this.profileId);
+        user.setProvider(this.provider);
+        user.setEmailVerified(this.emailVerified);
+        user.setVerificationToken(this.verificationToken);
+        return user;
     }
 }

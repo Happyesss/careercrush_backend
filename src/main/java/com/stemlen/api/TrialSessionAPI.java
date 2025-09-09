@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import com.stemlen.dto.ResponseDTO;
 import com.stemlen.dto.TrialSessionDTO;
 import com.stemlen.dto.TrialSessionStatus;
+import com.stemlen.dto.BulkTrialSessionDTO;
+import com.stemlen.dto.AvailabilityTemplateDTO;
 import com.stemlen.exception.PortalException;
 import com.stemlen.service.TrialSessionService;
 import com.stemlen.repository.UserRepository;
@@ -106,7 +108,7 @@ public class TrialSessionAPI {
     // 🔒 CREATE: Only authenticated mentors can create trial session slots
     @PostMapping("/create-slot")
     public ResponseEntity<TrialSessionDTO> createAvailableSlot(
-            @RequestBody @Valid TrialSessionDTO trialSessionDTO,
+            @RequestBody TrialSessionDTO trialSessionDTO,
             HttpServletRequest request) throws PortalException {
         
         Long userId = getUserIdFromRequest(request);
@@ -135,6 +137,215 @@ public class TrialSessionAPI {
         return new ResponseEntity<>(
             trialSessionService.createMultipleAvailableSlots(mentorId, dateTimeSlots, durationMinutes), 
             HttpStatus.CREATED
+        );
+    }
+
+    // 🆕 ENHANCED BULK OPERATIONS
+    @PostMapping("/create-bulk-sessions")
+    public ResponseEntity<List<TrialSessionDTO>> createBulkTrialSessions(
+            @RequestBody @Valid BulkTrialSessionDTO bulkRequest,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        return new ResponseEntity<>(
+            trialSessionService.createBulkTrialSessions(bulkRequest, mentorId), 
+            HttpStatus.CREATED
+        );
+    }
+
+    @PostMapping("/create-recurring-sessions")
+    public ResponseEntity<List<TrialSessionDTO>> createRecurringTrialSessions(
+            @RequestBody @Valid TrialSessionDTO baseSession,
+            @RequestParam String recurringPattern,
+            @RequestParam String endDate,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        LocalDateTime recurringEndDate = LocalDateTime.parse(endDate);
+        baseSession.setMentorId(mentorId); // 🔒 FORCE OWNERSHIP
+        
+        return new ResponseEntity<>(
+            trialSessionService.createRecurringTrialSessions(baseSession, recurringPattern, recurringEndDate, mentorId), 
+            HttpStatus.CREATED
+        );
+    }
+
+    // 🆕 AVAILABILITY TEMPLATE OPERATIONS
+    @PostMapping("/availability-templates")
+    public ResponseEntity<AvailabilityTemplateDTO> saveAvailabilityTemplate(
+            @RequestBody @Valid AvailabilityTemplateDTO template,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        return new ResponseEntity<>(
+            trialSessionService.saveAvailabilityTemplate(template, mentorId), 
+            HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/availability-templates")
+    public ResponseEntity<List<AvailabilityTemplateDTO>> getAvailabilityTemplates(
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        return new ResponseEntity<>(
+            trialSessionService.getAvailabilityTemplatesByMentor(mentorId), 
+            HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/availability-templates/{templateId}")
+    public ResponseEntity<AvailabilityTemplateDTO> getAvailabilityTemplate(
+            @PathVariable Long templateId,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        return new ResponseEntity<>(
+            trialSessionService.getAvailabilityTemplate(templateId, mentorId), 
+            HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/availability-templates/{templateId}")
+    public ResponseEntity<ResponseDTO> deleteAvailabilityTemplate(
+            @PathVariable Long templateId,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        trialSessionService.deleteAvailabilityTemplate(templateId, mentorId);
+        
+        return new ResponseEntity<>(
+            new ResponseDTO("Availability template deleted successfully"), 
+            HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/apply-template/{templateId}")
+    public ResponseEntity<List<TrialSessionDTO>> applyAvailabilityTemplate(
+            @PathVariable Long templateId,
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+        
+        return new ResponseEntity<>(
+            trialSessionService.applyAvailabilityTemplate(templateId, start, end, mentorId), 
+            HttpStatus.CREATED
+        );
+    }
+
+    // 🆕 ENHANCED QUERY OPERATIONS
+    @GetMapping("/date-range")
+    public ResponseEntity<List<TrialSessionDTO>> getSessionsByDateRange(
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+        
+        return new ResponseEntity<>(
+            trialSessionService.getTrialSessionsByDateRange(mentorId, start, end), 
+            HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/conflicts")
+    public ResponseEntity<List<TrialSessionDTO>> getConflictingSessions(
+            @RequestParam String scheduledDateTime,
+            @RequestParam Integer durationMinutes,
+            @RequestParam(defaultValue = "5") Integer bufferMinutes,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        LocalDateTime dateTime = LocalDateTime.parse(scheduledDateTime);
+        
+        return new ResponseEntity<>(
+            trialSessionService.getConflictingSessions(mentorId, dateTime, durationMinutes, bufferMinutes), 
+            HttpStatus.OK
+        );
+    }
+
+    // 🆕 BULK UPDATE OPERATIONS
+    @PutMapping("/bulk-update")
+    public ResponseEntity<List<TrialSessionDTO>> updateMultipleSessions(
+            @RequestParam List<Long> sessionIds,
+            @RequestBody TrialSessionDTO updates,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        return new ResponseEntity<>(
+            trialSessionService.updateMultipleTrialSessions(sessionIds, updates, mentorId), 
+            HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/bulk-delete")
+    public ResponseEntity<ResponseDTO> deleteMultipleSessions(
+            @RequestParam List<Long> sessionIds,
+            HttpServletRequest request) throws PortalException {
+        
+        Long userId = getUserIdFromRequest(request);
+        Long mentorId = getMentorIdFromUserId(userId);
+        
+        trialSessionService.deleteMultipleTrialSessions(sessionIds, mentorId);
+        
+        return new ResponseEntity<>(
+            new ResponseDTO("Sessions deleted successfully"), 
+            HttpStatus.OK
+        );
+    }
+
+    // 🆕 ENHANCED BOOKING OPERATIONS
+    @PutMapping("/reschedule/{sessionId}")
+    public ResponseEntity<TrialSessionDTO> rescheduleTrialSession(
+            @PathVariable Long sessionId,
+            @RequestParam String newDateTime,
+            @RequestParam(required = false) String reason) throws PortalException {
+        
+        LocalDateTime newTime = LocalDateTime.parse(newDateTime);
+        
+        return new ResponseEntity<>(
+            trialSessionService.rescheduleTrialSession(sessionId, newTime, reason), 
+            HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/alternative-slots/{sessionId}")
+    public ResponseEntity<List<TrialSessionDTO>> findAlternativeSlots(
+            @PathVariable Long sessionId,
+            @RequestParam String preferredDateTime,
+            @RequestParam(defaultValue = "24") Integer durationHours) throws PortalException {
+        
+        LocalDateTime preferred = LocalDateTime.parse(preferredDateTime);
+        
+        return new ResponseEntity<>(
+            trialSessionService.findAlternativeSlots(sessionId, preferred, durationHours), 
+            HttpStatus.OK
         );
     }
     

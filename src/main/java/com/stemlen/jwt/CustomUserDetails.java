@@ -23,7 +23,28 @@ public class CustomUserDetails implements UserDetails {
 	private String password;
 	private Long profileId;
 	private AccountType accountType;
-	private Collection<?extends GrantedAuthority>authorities;
+	private Collection<? extends GrantedAuthority> authorities;
 	private boolean emailVerified;
+	
+	// Additional getters for JWT claims (in case Lombok doesn't generate them)
+	public Long getId() {
+		return this.id;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public Long getProfileId() {
+		return this.profileId;
+	}
+	
+	public AccountType getAccountType() {
+		return this.accountType;
+	}
+	
+	public boolean isEmailVerified() {
+		return this.emailVerified;
+	}
 	
 }

@@ -17,4 +17,9 @@ public class Sequence {
     private String id;
 
     private Long seq = 0L; // Default value for sequence
+    
+    // Explicit getter method in case Lombok doesn't generate it
+    public Long getSeq() {
+        return this.seq;
+    }
 }

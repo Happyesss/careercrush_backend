@@ -33,6 +33,24 @@ public class TrialSession {
     private TrialSessionStatus status;
     private String sessionType;
     
+    // Enhanced scheduling fields
+    private String timeZone;               // Time zone for the session
+    private Integer bufferTimeMinutes;     // Buffer time between sessions
+    private Integer preparationTimeMinutes; // Preparation time before session
+    private String recurringPattern;       // DAILY, WEEKLY, MONTHLY, CUSTOM
+    private LocalDateTime recurringEndDate; // When recurring pattern ends
+    private Boolean isRecurring;           // Is this part of a recurring series
+    private Long parentSessionId;          // Reference to original session if recurring
+    private String availabilityTemplate;  // Template name for reusing patterns
+    
+    // Session configuration
+    private String sessionTitle;          // Custom title for the session
+    private String sessionDescription;    // Brief description
+    private Boolean allowRescheduling;    // Allow mentees to reschedule
+    private Integer maxReschedulingHours; // Max hours before session to reschedule
+    private Boolean requireConfirmation;  // Require manual confirmation
+    private String specialInstructions;   // Special instructions for mentees
+    
     // Meeting details
     private String meetingLink;
     private String meetingId;
@@ -53,25 +71,50 @@ public class TrialSession {
      * Convert entity to DTO
      */
     public TrialSessionDTO toDTO() {
-        return new TrialSessionDTO(
-            this.id,
-            this.mentorId,
-            this.menteeId,
-            this.packageId,
-            this.scheduledDateTime,
-            this.durationMinutes,
-            this.status,
-            this.sessionType,
-            this.meetingLink,
-            this.meetingId,
-            this.meetingPassword,
-            this.menteeEmail,
-            this.menteeName,
-            this.menteePhone,
-            this.notes,
-            this.createdAt,
-            this.updatedAt,
-            this.completedAt
-        );
+        TrialSessionDTO dto = new TrialSessionDTO();
+        dto.setId(this.id);
+        dto.setMentorId(this.mentorId);
+        dto.setMenteeId(this.menteeId);
+        dto.setPackageId(this.packageId);
+        dto.setScheduledDateTime(this.scheduledDateTime);
+        dto.setDurationMinutes(this.durationMinutes);
+        dto.setStatus(this.status);
+        dto.setSessionType(this.sessionType);
+        
+        // Enhanced scheduling fields
+        dto.setTimeZone(this.timeZone);
+        dto.setBufferTimeMinutes(this.bufferTimeMinutes);
+        dto.setPreparationTimeMinutes(this.preparationTimeMinutes);
+        dto.setRecurringPattern(this.recurringPattern);
+        dto.setRecurringEndDate(this.recurringEndDate);
+        dto.setIsRecurring(this.isRecurring);
+        dto.setParentSessionId(this.parentSessionId);
+        dto.setAvailabilityTemplate(this.availabilityTemplate);
+        
+        // Session configuration
+        dto.setSessionTitle(this.sessionTitle);
+        dto.setSessionDescription(this.sessionDescription);
+        dto.setAllowRescheduling(this.allowRescheduling);
+        dto.setMaxReschedulingHours(this.maxReschedulingHours);
+        dto.setRequireConfirmation(this.requireConfirmation);
+        dto.setSpecialInstructions(this.specialInstructions);
+        
+        // Meeting details
+        dto.setMeetingLink(this.meetingLink);
+        dto.setMeetingId(this.meetingId);
+        dto.setMeetingPassword(this.meetingPassword);
+        
+        // Mentee details
+        dto.setMenteeEmail(this.menteeEmail);
+        dto.setMenteeName(this.menteeName);
+        dto.setMenteePhone(this.menteePhone);
+        
+        // Tracking
+        dto.setNotes(this.notes);
+        dto.setCreatedAt(this.createdAt);
+        dto.setUpdatedAt(this.updatedAt);
+        dto.setCompletedAt(this.completedAt);
+        
+        return dto;
     }
 }

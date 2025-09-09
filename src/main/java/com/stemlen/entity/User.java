@@ -44,16 +44,16 @@ public class User {
 
     // Convert User entity to UserDTO
     public UserDTO toDTO() {
-        return new UserDTO(
-            this.id,
-            this.name,
-            this.email,
-            this.password,
-            this.accountType,
-            this.profileId,
-            this.provider,
-            this.emailVerified,
-            this.verificationToken 
-        );
+        UserDTO dto = new UserDTO();
+        dto.setId(this.id);
+        dto.setName(this.name);
+        dto.setEmail(this.email);
+        dto.setPassword(this.password);
+        dto.setAccountType(this.accountType);
+        dto.setProfileId(this.profileId);
+        dto.setProvider(this.provider);
+        dto.setEmailVerified(this.emailVerified);
+        dto.setVerificationToken(this.verificationToken);
+        return dto;
     }
 }
