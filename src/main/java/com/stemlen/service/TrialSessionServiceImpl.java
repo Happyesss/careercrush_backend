@@ -56,15 +56,7 @@ public class TrialSessionServiceImpl implements TrialSessionService {
             throw new PortalException("MENTOR_ID_REQUIRED: Mentor ID is required for creating trial session");
         }
         
-        // Set ID and timestamps for new sessions
-        if (Objects.isNull(trialSessionDTO.getId()) || trialSessionDTO.getId() == 0) {
-            trialSessionDTO.setId(Utilities.getNextSequence("trialSessions"));
-            trialSessionDTO.setCreatedAt(LocalDateTime.now());
-        }
-        trialSessionDTO.setUpdatedAt(LocalDateTime.now());
-        trialSessionDTO.setStatus(TrialSessionStatus.AVAILABLE);
-        
-        // Set default values for new fields
+        // Set default values for new fields first
         if (trialSessionDTO.getDurationMinutes() == null) {
             trialSessionDTO.setDurationMinutes(30);
         }
@@ -92,6 +84,31 @@ public class TrialSessionServiceImpl implements TrialSessionService {
         if (trialSessionDTO.getIsRecurring() == null) {
             trialSessionDTO.setIsRecurring(false);
         }
+        
+        // 🔒 Check for time conflicts before creating the slot
+        if (trialSessionDTO.getScheduledDateTime() != null) {
+            List<TrialSessionDTO> conflicts = getConflictingSessions(
+                trialSessionDTO.getMentorId(), 
+                trialSessionDTO.getScheduledDateTime(), 
+                trialSessionDTO.getDurationMinutes(), 
+                trialSessionDTO.getBufferTimeMinutes()
+            );
+            
+            if (!conflicts.isEmpty()) {
+                String conflictTimes = conflicts.stream()
+                    .map(session -> session.getScheduledDateTime().toString())
+                    .collect(Collectors.joining(", "));
+                throw new PortalException("TIME_SLOT_CONFLICT: A session already exists at this time or overlaps with existing sessions. Conflicting sessions: " + conflictTimes);
+            }
+        }
+        
+        // Set ID and timestamps for new sessions
+        if (Objects.isNull(trialSessionDTO.getId()) || trialSessionDTO.getId() == 0) {
+            trialSessionDTO.setId(Utilities.getNextSequence("trialSessions"));
+            trialSessionDTO.setCreatedAt(LocalDateTime.now());
+        }
+        trialSessionDTO.setUpdatedAt(LocalDateTime.now());
+        trialSessionDTO.setStatus(TrialSessionStatus.AVAILABLE);
         
         return trialSessionRepository.save(trialSessionDTO.toEntity()).toDTO();
     }
