@@ -60,6 +60,7 @@ public class TrialSession {
     private String menteeEmail;
     private String menteeName;
     private String menteePhone;
+    private String menteeProfilePicture; // Base64 encoded profile picture
     
     // Session notes and tracking
     private String notes;
@@ -108,6 +109,7 @@ public class TrialSession {
         dto.setMenteeEmail(this.menteeEmail);
         dto.setMenteeName(this.menteeName);
         dto.setMenteePhone(this.menteePhone);
+        dto.setMenteeProfilePicture(this.menteeProfilePicture);
         
         // Tracking
         dto.setNotes(this.notes);

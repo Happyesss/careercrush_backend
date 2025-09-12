@@ -56,6 +56,7 @@ public class TrialSessionDTO {
     private String menteeEmail;
     private String menteeName;
     private String menteePhone;
+    private String menteeProfilePicture; // Base64 encoded profile picture
     
     // Session notes and tracking
     private String notes;
@@ -104,6 +105,7 @@ public class TrialSessionDTO {
         entity.setMenteeEmail(this.menteeEmail);
         entity.setMenteeName(this.menteeName);
         entity.setMenteePhone(this.menteePhone);
+        entity.setMenteeProfilePicture(this.menteeProfilePicture);
         
         // Tracking
         entity.setNotes(this.notes);

@@ -153,4 +153,18 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new PortalException("USER_NOT_FOUND")).toDTO();
     }
+    
+    @Override
+    public UserDTO getUserById(Long id) throws PortalException {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new PortalException("USER_NOT_FOUND")).toDTO();
+    }
+    
+    @Override
+    public UserDTO getUserProfile(Long id) throws PortalException {
+        UserDTO userDTO = getUserById(id);
+        // This method can be enhanced to include additional profile information
+        // For now, it returns the same as getUserById
+        return userDTO;
+    }
 }

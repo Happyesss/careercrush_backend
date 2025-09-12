@@ -34,6 +34,12 @@ public class TrialSessionServiceImpl implements TrialSessionService {
     @Autowired
     private AvailabilityTemplateRepository availabilityTemplateRepository;
     
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private ProfileService profileService;
+    
     // 🔒 CORE SECURITY METHOD: Validate trial session ownership
     @Override
     public void validateTrialSessionOwnership(Long sessionId, Long userId) throws PortalException {
@@ -544,11 +550,31 @@ public class TrialSessionServiceImpl implements TrialSessionService {
             throw new PortalException("SESSION_NOT_AVAILABLE: Session is not available for booking");
         }
         
+        // Fetch mentee's profile picture
+        String menteeProfilePicture = null;
+        try {
+            // Get user by email to get their profile ID
+            var user = userService.getUserByEmail(menteeEmail);
+            if (user != null && user.getProfileId() != null) {
+                // Get profile to fetch profile picture
+                var profile = profileService.getProfile(user.getProfileId());
+                if (profile != null) {
+                    menteeProfilePicture = profile.getPicture(); // This is already Base64 encoded
+                    // Also set the menteeId for better data integrity
+                    session.setMenteeId(user.getId());
+                }
+            }
+        } catch (PortalException e) {
+            // Log the error but don't fail the booking process
+            System.out.println("Could not fetch profile picture for mentee: " + menteeEmail + ", Error: " + e.getMessage());
+        }
+        
         // Update session with booking details
         session.setStatus(TrialSessionStatus.BOOKED);
         session.setMenteeEmail(menteeEmail);
         session.setMenteeName(menteeName);
         session.setMenteePhone(menteePhone);
+        session.setMenteeProfilePicture(menteeProfilePicture);
         session.setUpdatedAt(LocalDateTime.now());
         
         return trialSessionRepository.save(session).toDTO();
